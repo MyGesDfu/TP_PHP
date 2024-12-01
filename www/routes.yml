@@ -1,0 +1,19 @@
+/user/add:
+  controller: "User"
+  action: "register"
+
+/se-connecter:
+  controller: "User"
+  action: "login"
+
+/se-deconnecter:
+  controller: "User"
+  action: "logout"
+
+/backoffice:
+  controller: "Backoffice"
+  action: "dashboard"
+
+/page:
+  controller: "page"
+  action: "show"
