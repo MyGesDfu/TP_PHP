@@ -21,19 +21,22 @@ class User
 
     public static function register($values):bool
     {
-        $columns = ["firstname","lastname", "email", "country", "password"]
+        $timestamp = date("Y-m-d H:i:s");
+        $columns = ["firstname","lastname", "email", "country", "password", "createdat", "updatedat"]
         $vals = [
-            values["firstname"],
-            values["lastname"],
-            values["email"],
-            values["country"],
-            hash("sha256",values["password"])
+            $values["firstname"],
+            $values["lastname"],
+            $values["email"],
+            $values["country"],
+            hash("sha256",$values["password"]),
+            $timestamp,
+            $timestamp,
         ]
 
         $sql = new S();
         $sql->generalInsert(
             $columns,
-            $values,
+            $vals,
             "USERS"
         )
     }
