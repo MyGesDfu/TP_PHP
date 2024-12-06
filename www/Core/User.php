@@ -19,7 +19,7 @@ class User
         session_destroy();
     }
 
-    public function register($values):bool
+    public static function register($values):bool
     {
         $columns = ["firstname","lastname", "email", "country", "password"]
         $vals = [
