@@ -7,32 +7,37 @@ class SQL
 
     private $pdo;
 
-    public function __construct(){
-        try{
-            $this->pdo = new \PDO("mysql:host=mariadb;dbname=esgi","esgi","esgipwd");
-        }catch(\Exception $e){
-            die("Erreur SQL :".$e->getMessage());
+    public function __construct()
+    {
+        try {
+            $this->pdo = new \PDO("mysql:host=mariadb;dbname=esgi", "esgi", "esgipwd");
+        } catch (\Exception $e) {
+            die("Erreur SQL :" . $e->getMessage());
         }
     }
 
-    public function getOneById(string $table,int $id): array
+    public function getOneById(string $table, int $id): array
     {
-       $queryPrepared = $this->pdo->prepare("SELECT * FROM ".$table." WHERE id=:id");
-       $queryPrepared->execute([
-               "id"=>$id
-           ]);
-       return $queryPrepared->fetch();
+        $queryPrepared = $this->pdo->prepare("SELECT * FROM " . $table . " WHERE id=:id");
+        $queryPrepared->execute([
+            "id" => $id
+        ]);
+        return $queryPrepared->fetch();
     }
 
-    
-    public function generalInsert(array $fields, array $values, string $table) 
+    public function getPDO(): \PDO
+    {
+        return $this->pdo;
+    }
+
+    public function generalInsert(array $fields, array $values, string $table)
     {
         /// fonction qui permet d'inserer dans la table en paramètre les valeurs présentent en paramètre
         /// param1 => liste des colonnes (ex: ["firstname", "lastname"...])
         /// param2 => liste des valeurs (ex: ["Théo", "l'asticot"....])
         /// parma3 => nom de la table dans laquelle faire l'insertion
-        
-        $query = "INSERT INTO " .$table . "(";
+
+        $query = "INSERT INTO " . $table . "(";
 
         $i = 0;
         foreach ($fields as $value) {
