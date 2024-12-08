@@ -1,48 +1,41 @@
 <?php
+
 namespace App\Core;
-use App\Core\SQL as S;
+
+use App\Models\UserModel;
+
 class User
 {
-    private $db;
+    private $userModel;
 
     public function __construct()
     {
-        $this->db = new SQL();
+        $this->userModel = new UserModel();  // Utilise le modèle UserModel
     }
 
-    public function createUser(array $data): int
-    {
-        $fields = ['firstname', 'lastname', 'email', 'country', 'password'];
-        $values = [
-            $data['firstname'],
-            $data['lastname'],
-            $data['email'],
-            $data['country'],
-            $data['password'],
-        ];
-        return $this->db->generalInsert($fields, $values, 'USERS');
-    }
-    public function getUserByEmail(string $email): array|false
-    {
-        $queryPrepared = $this->db->getPDO()->prepare("SELECT * FROM USERS WHERE email = :email");
-        $queryPrepared->execute(['email' => $email]);
-        return $queryPrepared->fetch();
-    }
-
-
+    // Vérifier si un utilisateur est connecté
     public function isLogged(): bool
     {
-        return false;
+        return isset($_SESSION['user']);
     }
 
+    // Récupérer l'utilisateur connecté
+    public function getLoggedUser(): array|false
+    {
+        return $_SESSION['user'] ?? false;
+    }
+
+    // Récupérer les rôles de l'utilisateur connecté (si applicable)
     public function getRoles(): array
     {
-        return [];
+        return $_SESSION['user']['roles'] ?? [];
     }
 
+    // Déconnexion de l'utilisateur
     public function logout(): void
     {
+        session_start();
+        session_unset();
         session_destroy();
     }
-
 }

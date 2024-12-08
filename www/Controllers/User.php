@@ -1,16 +1,17 @@
 <?php
+
 namespace App\Controllers;
 
-use App\Core\User as U;
+use App\Models\UserModel;
 use App\Core\View;
 
 class User
 {
-    private $user;
+    private $userModel;
 
     public function __construct()
     {
-        $this->user = new U();
+        $this->userModel = new UserModel();  // Utilisation du modèle UserModel
     }
 
     public function register(): void
@@ -39,13 +40,13 @@ class User
                 $errors['password'] = "Le mot de passe doit contenir au moins 6 caractères.";
             if ($password !== $passwordConfirm)
                 $errors['password_confirm'] = "Les mots de passe ne correspondent pas.";
-            if (empty($errors) && $this->user->getUserByEmail($email)) {
+            if (empty($errors) && $this->userModel->getUserByEmail($email)) {
                 $errors['email'] = "Un utilisateur avec cet email existe déjà.";
             }
 
             if (empty($errors)) {
                 $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-                $userId = $this->user->createUser([
+                $userId = $this->userModel->createUser([
                     'firstname' => $firstname,
                     'lastname' => $lastname,
                     'email' => $email,
@@ -66,7 +67,6 @@ class User
             header("Location: /s-inscrire");
             exit;
         }
-        //echo $view;
     }
 
     public function login(): void
@@ -85,7 +85,7 @@ class User
                 $errors['password'] = "Le mot de passe est requis.";
 
             if (empty($errors)) {
-                $user = $this->user->getUserByEmail($email);
+                $user = $this->userModel->getUserByEmail($email);
 
                 if ($user && password_verify($password, $user['password'])) {
                     $_SESSION['user'] = $user;
@@ -103,7 +103,6 @@ class User
         }
     }
 
-
     public function logout(): void
     {
         session_start();
@@ -112,5 +111,4 @@ class User
         header("Location: /");
         exit;
     }
-
 }
