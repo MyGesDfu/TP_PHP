@@ -11,5 +11,5 @@ session_start();
     <a href="/se-deconnecter">Se déconnecter</a>
 <?php else: ?>
     <a href="/se-connecter">Connecte-toi !</a>
-    <a href="/s-incrire">Inscris-toi !</a>
+    <a href="/s-inscrire">Inscris-toi !</a>
 <?php endif; ?>
