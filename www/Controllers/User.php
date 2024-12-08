@@ -19,11 +19,12 @@ class User
         session_start();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $firstname = trim($_POST['firstname']);
-            $lastname = trim($_POST['lastname']);
-            $email = trim($_POST['email']);
-            $country = trim($_POST['country']);
+            $firstname = ucwords(strtolower(trim($_POST['firstname'])));
+            $lastname = strtoupper(trim($_POST['lastname']));
+            $email = strtolower(trim($_POST['email']));
+            $country = ucwords(trim($_POST['country']));
             $password = trim($_POST['password']);
+            $passwordConfirm = trim($_POST['passwordConfirm']);
             $errors = [];
 
             if (empty($firstname))
@@ -36,7 +37,8 @@ class User
                 $errors['country'] = "Le pays est requis.";
             if (empty($password) || strlen($password) < 6)
                 $errors['password'] = "Le mot de passe doit contenir au moins 6 caractères.";
-
+            if ($password !== $passwordConfirm)
+                $errors['password_confirm'] = "Les mots de passe ne correspondent pas.";
             if (empty($errors) && $this->user->getUserByEmail($email)) {
                 $errors['email'] = "Un utilisateur avec cet email existe déjà.";
             }
@@ -61,7 +63,7 @@ class User
 
             $_SESSION['errors'] = $errors;
             $_SESSION['old'] = $_POST;
-            header("Location: /register");
+            header("Location: /s-inscrire");
             exit;
         }
         //echo $view;

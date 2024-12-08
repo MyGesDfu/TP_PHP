@@ -2,7 +2,7 @@
   controller: "Home"
   action: "index"
 
-/register:
+/s-inscrire:
   controller: "User"
   action: "register"
 
@@ -17,11 +17,3 @@
 /backoffice:
   controller: "Backoffice"
   action: "dashboard"
-
-/page:
-  controller: "page"
-  action: "show"
-
-/register/confirm:
-  controller: "User"
-  action: "register"
