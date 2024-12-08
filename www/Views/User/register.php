@@ -5,7 +5,7 @@
         <?php endforeach; ?>
     </ul>
 <?php endif; ?>
-<form action="/register/confirm" method="POST">
+<form action="/register" method="POST">
     <input type="text" name="firstname" placeholder="Votre prénom" required minlength="2"><br>
     <input type="text" name="lastname" placeholder="Votre nom" required minlength="2"><br>
     <input type="email" name="email" placeholder="Votre email" required><br>

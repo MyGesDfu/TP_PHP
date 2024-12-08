@@ -24,7 +24,7 @@ class User
     }
     public function getUserByEmail(string $email): array|false
     {
-        $queryPrepared = $this->db->getPDO()->prepare("SELECT * FROM users WHERE email = :email");
+        $queryPrepared = $this->db->getPDO()->prepare("SELECT * FROM USERS WHERE email = :email");
         $queryPrepared->execute(['email' => $email]);
         return $queryPrepared->fetch();
     }
