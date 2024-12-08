@@ -15,3 +15,4 @@
     <input type="text" name="country" placeholder="Votre pays" required><br>
     <input type="submit" value="S'inscrire"><br>
 </form>
+<p>Déjà un compte ? <a href="/se-connecter">Connectez-vous ici</a>.</p>
