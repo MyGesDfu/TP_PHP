@@ -4,6 +4,7 @@
             <li><?= htmlspecialchars($error) ?></li>
         <?php endforeach; ?>
     </ul>
+    <?php unset($_SESSION['errors']); ?>
 <?php endif; ?>
 <form action="/register" method="POST">
     <input type="text" name="firstname" placeholder="Votre prénom" required minlength="2"><br>

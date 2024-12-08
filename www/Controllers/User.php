@@ -16,6 +16,7 @@ class User
     public function register(): void
     {
         $view = new View("User/register.php", "back.php");
+        session_start();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $firstname = trim($_POST['firstname']);
@@ -68,15 +69,46 @@ class User
 
     public function login(): void
     {
+        session_start();
         $view = new View("User/login.php", "front.php");
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = trim($_POST['email']);
+            $password = trim($_POST['password']);
+            $errors = [];
+
+            if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL))
+                $errors['email'] = "L'email est invalide.";
+            if (empty($password))
+                $errors['password'] = "Le mot de passe est requis.";
+
+            if (empty($errors)) {
+                $user = $this->user->getUserByEmail($email);
+
+                if ($user && password_verify($password, $user['password'])) {
+                    $_SESSION['user'] = $user;
+                    header("Location: /");
+                    exit;
+                } else {
+                    $errors['general'] = "Email ou mot de passe incorrect.";
+                }
+            }
+
+            $_SESSION['errors'] = $errors;
+            $_SESSION['old'] = $_POST;
+            header("Location: /se-connecter");
+            exit;
+        }
     }
 
 
     public function logout(): void
     {
-        $user = new U();
-        $user->logout();
-        echo "Déconnexion";
+        session_start();
+        session_unset();
+        session_destroy();
+        header("Location: /");
+        exit;
     }
 
 }
