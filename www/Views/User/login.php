@@ -13,3 +13,4 @@
     <input type="password" name="password" placeholder="Votre mot de passe" required><br>
     <input type="submit" value="Se connecter">
 </form>
+<p>Pas encore de compte ? <a href="/s-inscrire">Inscrivez-vous ici</a>.</p>

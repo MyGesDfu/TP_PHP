@@ -6,7 +6,7 @@
     </ul>
     <?php unset($_SESSION['errors']); ?>
 <?php endif; ?>
-<form action="/s-incrire" method="POST">
+<form action="/s-inscrire" method="POST">
     <input type="text" name="firstname" placeholder="Votre prénom" required minlength="2"><br>
     <input type="text" name="lastname" placeholder="Votre nom" required minlength="2"><br>
     <input type="email" name="email" placeholder="Votre email" required><br>
@@ -15,3 +15,4 @@
     <input type="text" name="country" placeholder="Votre pays" required><br>
     <input type="submit" value="S'inscrire"><br>
 </form>
+<p>Déjà un compte ? <a href="/se-connecter">Connectez-vous ici</a>.</p>
