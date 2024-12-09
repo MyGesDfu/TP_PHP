@@ -63,7 +63,7 @@ class User
             }
 
             $_SESSION['errors'] = $errors;
-            $_SESSION['old'] = $_POST;
+            session_write_close();
             header("Location: /s-inscrire");
             exit;
         }
@@ -97,7 +97,7 @@ class User
             }
 
             $_SESSION['errors'] = $errors;
-            $_SESSION['old'] = $_POST;
+            session_write_close();
             header("Location: /se-connecter");
             exit;
         }

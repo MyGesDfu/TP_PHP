@@ -6,6 +6,7 @@
             <li><?= htmlspecialchars($error) ?></li>
         <?php endforeach; ?>
     </ul>
+    <?php unset($_SESSION['errors']); ?>
 <?php endif; ?>
 
 <form action="/se-connecter" method="POST">
