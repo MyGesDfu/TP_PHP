@@ -146,4 +146,59 @@ class User
         exit;
     }
 
+    // Affiche le formulaire de modification de profil
+    public function edit(int $id): void
+    {
+        $this->startSession();
+        $user = $this->userModel->getUserById($id);
+
+        // Afficher la vue du formulaire avec les données de l'utilisateur
+        if ($user) {
+            // Charger la vue de modification avec les données de l'utilisateur
+            $view = new View("User/edit.php", "back.php");
+            $view->addData('user', $user);
+        } else {
+            // L'utilisateur n'a pas été trouvé
+            header("Location: /");
+            exit;
+        }
+    }
+
+    // Met à jour les informations de l'utilisateur
+    public function update(int $id): void
+    {
+
+        // Vérifier si le formulaire a été soumis
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Validation des données
+            $validator = new Validator();
+
+            $firstname = $_POST['firstname'] ?? '';
+            $lastname = $_POST['lastname'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $country = $_POST['country'] ?? '';
+
+            $validator->validateRequired('firstname', $firstname, 'Le prénom est requis.');
+            $validator->validateRequired('lastname', $lastname, 'Le nom est requis.');
+            $validator->validateEmail('email', $email);
+            $validator->validateRequired('country', $country, 'Le pays est requis.');
+
+            if ($validator->isValid()) {
+                // Mettre à jour l'utilisateur dans la base de données
+                $updated = $this->userModel->updateUser($id, $firstname, $lastname, $email, $country);
+
+                if ($updated) {
+                    $_SESSION['success_message'] = "Vos informations ont été mises à jour avec succès.";
+                    header("Location: /");
+                    exit;
+                } else {
+                    $errors['general'] = 'Erreur lors de la mise à jour.';
+                }
+            } else {
+                $_SESSION['errors'] = $validator->getErrors();
+                header("Location: /utilisateurs/$id/modifier");
+                exit;
+            }
+        }
+    }
 }

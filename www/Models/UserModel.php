@@ -52,4 +52,27 @@ class UserModel
         $queryPrepared->execute(['email' => $email]);
         return $queryPrepared->fetch();
     }
+
+    public function getUserById(int $id): array|false
+    {
+        $queryPrepared = $this->db->getPDO()->prepare("SELECT * FROM USERS WHERE id = :id");
+        $queryPrepared->execute(['id' => $id]);
+        return $queryPrepared->fetch();
+    }
+
+    public function updateUser(int $id, string $firstname, string $lastname, string $email, string $country): bool
+    {
+        $query = "UPDATE USERS SET firstname = :firstname, lastname = :lastname, email = :email, country = :country WHERE id = :id";
+        $stmt = $this->db->getPDO()->prepare($query);
+
+        // Exécute la requête avec les données
+        $stmt->bindParam(':firstname', $firstname);
+        $stmt->bindParam(':lastname', $lastname);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':country', $country);
+        $stmt->bindParam(':id', $id);
+
+        // Si la mise à jour réussie, retourne true, sinon false
+        return $stmt->execute();
+    }
 }
