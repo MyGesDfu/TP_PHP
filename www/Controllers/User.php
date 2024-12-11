@@ -60,10 +60,12 @@ class User
                 $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
                 $validator->validateRequired('firstname', $firstname, "Le prénom est requis.");
+                $validator->validateName('firstname', $firstname);
                 $validator->validateRequired('lastname', $lastname, "Le nom est requis.");
                 $validator->validateEmail('email', $email);
                 $validator->validateRequired('country', $country, "Le pays est requis.");
                 $validator->validateRequired('password', $password, "Le mot de passe est requis.");
+                $validator->validatePasswordStrength($password);
                 $validator->validatePasswordMatch($password, $passwordConfirm);
 
                 if ($this->userModel->getUserByEmail($email)) {
