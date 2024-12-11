@@ -1,12 +1,9 @@
 **Projet Gestion d'Utilisateurs en PHP (MVC) :**
 
-Ce projet est une application PHP construite selon le modèle MVC (Modèle-Vue-Contrôleur), permettant de gérer des utilisateurs via des fonctionnalités pour créer, mettre à jour, visualiser  des utilisateurs via un système d'authentification.
+Ce projet est une application PHP construite selon le modèle MVC (Modèle-Vue-Contrôleur), permettant de gérer des utilisateurs via des fonctionnalités pour créer, mettre à jour, visualiser des utilisateurs via un système d'authentification.
 
 Le projet est conteneurisé avec Docker et utilise une base de données MariaDB pour stocker les informations des utilisateurs. Un environnement complet est fourni avec un serveur web Apache, une base de données MariaDB et une interface phpMyAdmin pour une gestion simplifiée.
 Prérequis
-
-
-
 
 **Fonctionnalités :**
 
@@ -15,9 +12,7 @@ Connexion/Authentification : Authentification sécurisée avec hashage des mots 
 Modification de profil : Mise à jour des informations personnelles de l'utilisateur.
 Visualisation des données utilisateur : Consultation des informations depuis la base de données.
 Réinitialisation du mot de passe: Formulaire permettant de réinitialiser le mot de passe avec un système de
-
-
-
+Se souvenir de moi : Possibilité de rester connecté grâce à un cookie persistant, même après fermeture du navigateur.
 
 **Structure du Projet (Modèle MVC) :**
 
@@ -25,15 +20,10 @@ Modèle (Model) : Contient la logique métier et gère les interactions avec la 
 Vue (View) : Responsable de l'affichage des données. Exemple : edit.php, register.php.
 Contrôleur (Controller) : Traite les requêtes, interagit avec le modèle et envoie les données aux vues. Exemple : User.php.
 
-
-
-
 **Prérequis :**
 
 Docker et Docker Compose installés sur votre machine.
 Un éditeur de texte ou un IDE comme Visual Studio Code.
-
-
 
 **Installation et Exécution :**
 
@@ -43,15 +33,13 @@ git clone https://github.com/MyGesDfu/TP_PHP.git
 
 2/ Lancer l'application avec Docker Compose :
 
-  - docker compose build
-  - docker compose up -d
+- docker compose build
+- docker compose up -d
 
 Accéder à l'application :
 
 Application web : http://localhost:80
 Interface phpMyAdmin : http://localhost:8080
-
-
 
 **Architecture Docker**
 
