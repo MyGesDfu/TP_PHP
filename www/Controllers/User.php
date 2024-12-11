@@ -149,7 +149,12 @@ class User
     // Affiche le formulaire de modification de profil
     public function edit(int $id): void
     {
+
         $this->startSession();
+        if (!isset($_SESSION['user']['id'])) {
+            header('Location: /login');
+            exit;
+        }
         $user = $this->userModel->getUserById($id);
 
         // Afficher la vue du formulaire avec les données de l'utilisateur
@@ -159,6 +164,7 @@ class User
             $view->addData('user', $user);
         } else {
             // L'utilisateur n'a pas été trouvé
+            $_SESSION['errors']['general'] = "Utilisateur non trouvé.";
             header("Location: /");
             exit;
         }
@@ -167,6 +173,7 @@ class User
     // Met à jour les informations de l'utilisateur
     public function update(int $id): void
     {
+        $this->startSession();
 
         // Vérifier si le formulaire a été soumis
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -178,9 +185,11 @@ class User
             $email = $_POST['email'] ?? '';
             $country = $_POST['country'] ?? '';
 
+
             $validator->validateRequired('firstname', $firstname, 'Le prénom est requis.');
             $validator->validateRequired('lastname', $lastname, 'Le nom est requis.');
             $validator->validateEmail('email', $email);
+            $validator->validateRequired('email', $email, 'L\'email est requis.');
             $validator->validateRequired('country', $country, 'Le pays est requis.');
 
             if ($validator->isValid()) {

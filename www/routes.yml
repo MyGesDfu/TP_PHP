@@ -17,3 +17,7 @@
 /utilisateurs/{id}/modifier:
   controller: "User"
   action: "edit"
+
+/utilisateurs/{id}/update:
+  controller: "User"
+  action: "update"
