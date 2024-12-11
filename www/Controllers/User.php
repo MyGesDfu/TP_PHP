@@ -111,8 +111,6 @@ class User
         header("Location: /");
         exit;
     }
-<<<<<<< Updated upstream
-=======
 
     // Affiche le formulaire de modification de profil
     public function edit(int $id): void
@@ -179,36 +177,52 @@ class User
             
         }
     }
+
     public function forgotPassword()
-{
-    require_once 'views/auth/forgot_password.php';
-}
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = $_POST['email'];
+            $user = $this->userModel->findByEmail($email);
 
-public function sendResetLink()
-{
-    $email = $_POST['email'];
+            if ($user) {
+                $token = bin2hex(random_bytes(32));
+                $this->userModel->storeResetToken($user, $token);
 
-    // Vérifiez si l'email existe
-    $user = User::getUserByEmail($email);
-    if (!$user) {
-        echo "Aucun compte associé à cet email.";
-        return;
+                $resetLink = "http://localhost:90/reset-password?token=$token";
+                //mail($email, "Reset your password", "Click here to reset your password: $resetLink");
+
+                echo "<h3>Un liens permettant de changer votre mot de passe à été envoyer à l'email</h3>";
+                echo "<a href='".$resetLink."'>Reset link</a>";
+            } else {
+                echo "No user found with that email.";
+            }
+        } else {
+            $view = new View("User/forgot_password.php", "front.php");
+        }
     }
 
-    // Génération d'un token unique
-    $token = bin2hex(random_bytes(32));
-    $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour'));
+    public function resetPassword()
+    {
 
-    // Enregistrer le token dans la base de données
-    User::createResetToken($email, $token, $expiresAt);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $token = $_POST['token'];
+            $newPassword = $_POST['password'];
 
-    // Envoi de l'email
-    $resetLink = "http://yourwebsite.com/auth/resetPassword?token=" . $token;
-    mail($email, "Réinitialisation de votre mot de passe", "Cliquez ici pour réinitialiser : $resetLink");
+            $user = $this->userModel->findByResetToken($token);
+            if ($user && $this->userModel->isTokenValid($token)) {
+                $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+                $this->userModel->updatePassword($user, $hashedPassword);
+                echo "<h3>Le mot de passe a été changer avec succès</h3>";
+                echo "<a href='/'>Retourner à l'acceuil</a>";
+            } else {
+                echo "Token invalide";
+            }
+        } else {
+            new View("User/reset_password.php", "front.php");
+        }
+    }
 
-    echo "Un lien de réinitialisation a été envoyé à votre email.";
-}
 
 
->>>>>>> Stashed changes
+
 }
