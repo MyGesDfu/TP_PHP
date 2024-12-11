@@ -35,7 +35,9 @@ CREATE TABLE `USERS` (
   `country` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `createdat` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updatedat` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updatedat` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `reset_token` VARCHAR(64) NULL,
+  `token_expiry` DATETIME NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 --

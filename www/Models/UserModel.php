@@ -85,12 +85,8 @@ class UserModel
     {
         $query = "SELECT id FROM USERS WHERE email = :email";
         $stmt = $this->db->getPDO()->prepare($query);
-        $stmt->bindParam(':email', $email);
-        if (!$stmt->execute()) {
-            error_log(print_r($stmt->errorInfo(), true));
-            return false;
-        }
-        return true;
+        $stmt->execute(['email' => $email]);
+        return $stmt->fetch();
     }
 
     public function storeResetToken($userId, $token)
@@ -106,21 +102,17 @@ class UserModel
         return true;
     }
 
-    public function findByResetToken($token): bool
+    public function findByResetToken($token)
     {
         $query = "SELECT * FROM USERS WHERE reset_token = :token";
         $stmt = $this->db->getPDO()->prepare($query);
-        $stmt->bindParam(':token', $token);
-        if (!$stmt->execute()) {
-            error_log(print_r($stmt->errorInfo(), true));
-            return false;
-        }
-        return true;
+        $stmt->execute(['token' => $token]);
+        return $stmt->fetch();
     }
 
     public function isTokenValid($token): bool
     {
-        $query = "SELECT * FROM USERS WHERE reset_token = :token AND token_expiry > NOW()";
+        $query = "SELECT id FROM USERS WHERE reset_token = :token AND token_expiry > NOW()";
         $stmt = $this->db->getPDO()->prepare($query);
         $stmt->bindParam(':token', $token);
         if (!$stmt->execute()) {
@@ -145,7 +137,7 @@ class UserModel
 
     public function clearResetToken($userId): bool
     {
-        $sql = "UPDATE USERS SET reset_token = NULL, token_expiry = NULL WHERE id = :id";
+        $query = "UPDATE USERS SET reset_token = NULL, token_expiry = NULL WHERE id = :id";
         $stmt = $this->db->getPDO()->prepare($query);
         $stmt->bindParam(':id', $userId);
         if (!$stmt->execute()) {
