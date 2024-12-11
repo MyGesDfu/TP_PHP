@@ -50,6 +50,52 @@ class UserModel
     {
         $queryPrepared = $this->db->getPDO()->prepare("SELECT * FROM USERS WHERE email = :email");
         $queryPrepared->execute(['email' => $email]);
-        return $queryPrepared->fetch();
+        return $queryPrepared->fetch(\PDO::FETCH_ASSOC); // S'assurer de renvoyer un tableau associatif
     }
+<<<<<<< Updated upstream
+=======
+
+    // Méthode pour récupérer un utilisateur par ID
+    public function getUserById(int $id): array|false
+    {
+        $queryPrepared = $this->db->getPDO()->prepare("SELECT * FROM USERS WHERE id = :id");
+        $queryPrepared->execute(['id' => $id]);
+        return $queryPrepared->fetch(\PDO::FETCH_ASSOC);
+    }
+
+    // Méthode pour mettre à jour les informations d'un utilisateur
+    public function updateUser(int $id, string $firstname, string $lastname, string $email, string $country): bool
+    {
+        $query = "UPDATE USERS SET firstname = :firstname, lastname = :lastname, email = :email, country = :country WHERE id = :id";
+        $stmt = $this->db->getPDO()->prepare($query);
+
+        // Exécute la requête avec les données
+        $stmt->bindParam(':firstname', $firstname);
+        $stmt->bindParam(':lastname', $lastname);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':country', $country);
+        $stmt->bindParam(':id', $id);
+
+        if (!$stmt->execute()) {
+            error_log(print_r($stmt->errorInfo(), true));
+            return false;
+        }
+        return true;
+    }
+
+    // Méthode pour mettre à jour le mot de passe d'un utilisateur par email
+    public function updatePasswordByEmail(string $email, string $hashedPassword): bool
+    {
+        $query = "UPDATE USERS SET password = :password WHERE email = :email";
+        $stmt = $this->db->getPDO()->prepare($query);
+        $stmt->bindParam(':password', $hashedPassword);
+        $stmt->bindParam(':email', $email);
+
+        if (!$stmt->execute()) {
+            error_log(print_r($stmt->errorInfo(), true));
+            return false;
+        }
+        return true;
+    }
+>>>>>>> Stashed changes
 }
