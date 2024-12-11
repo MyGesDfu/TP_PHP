@@ -74,5 +74,6 @@ class UserModel
 
         // Si la mise à jour réussie, retourne true, sinon false
         return $stmt->execute();
+
     }
 }
