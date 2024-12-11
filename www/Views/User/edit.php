@@ -20,6 +20,7 @@
 
     <button type="submit">Enregistrer les modifications</button>
 </form>
+<a href="/">Retour à la page d'accueil</a>
 
 <?php if (isset($errors)): ?>
     <ul>
