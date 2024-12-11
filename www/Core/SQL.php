@@ -19,6 +19,12 @@ class SQL
     // Récupérer un enregistrement par ID
     public function getOneById(string $table, int $id): array
     {
+        // Liste blanche des tables autorisées
+        $allowedTables = ['USERS'];
+        if (!in_array(strtolower($table), $allowedTables)) {
+            throw new \Exception("Table non autorisée.");
+        }
+
         $queryPrepared = $this->pdo->prepare("SELECT * FROM " . $table . " WHERE id=:id");
         $queryPrepared->execute(["id" => $id]);
         return $queryPrepared->fetch();
@@ -33,12 +39,19 @@ class SQL
     // Insérer des données dans une table générique
     public function generalInsert(array $fields, array $values, string $table)
     {
-        $query = "INSERT INTO " . $table . "(" . implode(", ", $fields) . ") VALUES (" . implode(", ", array_fill(0, count($fields), '?')) . ")";
+        // Préparation de la requête avec des valeurs sécurisées
+        $query = "INSERT INTO " . $table . " (" . implode(", ", $fields) . ") VALUES (" . implode(", ", array_fill(0, count($fields), '?')) . ")";
         $stmt = $this->pdo->prepare($query);
 
-        if ($stmt->execute($values)) {
-            return $this->pdo->lastInsertId();
+        try {
+            if ($stmt->execute($values)) {
+                return $this->pdo->lastInsertId();
+            } else {
+                throw new \Exception("Échec de l'insertion.");
+            }
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+            return -1;
         }
-        return -1;
     }
 }

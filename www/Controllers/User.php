@@ -81,6 +81,7 @@ class User
                     ]);
 
                     if ($userId > 0) {
+                        $_SESSION['success_message'] = "Votre inscription a été réussie. Vous pouvez maintenant vous connecter.";
                         header("Location: /se-connecter");
                         exit;
                     } else {

@@ -8,6 +8,12 @@
     </ul>
     <?php unset($_SESSION['errors']); ?>
 <?php endif; ?>
+<?php
+if (isset($_SESSION['success_message'])) {
+    echo '<div class="alert alert-success">' . $_SESSION['success_message'] . '</div>';
+    unset($_SESSION['success_message']);
+}
+?>
 
 <form action="/se-connecter" method="POST">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
