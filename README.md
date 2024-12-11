@@ -62,7 +62,8 @@ password : Mot de passe hashé.
 created_at : Date de création.
 reset_token : Token permettant de reset le mot de passe.
 token_expiry : Date d'expiration du token
-
+persistent_login_token : Token permettant de rester connexter.
+persistent_login_expiry : Date d'expiration du token
 **Auteurs**
 
 Projet développé dans le cadre d'un projet en groupe avec la participation de : Danny Fu, Théa Colinot, Mariam Bouhassoune
