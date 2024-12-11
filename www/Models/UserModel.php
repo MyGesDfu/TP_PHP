@@ -72,7 +72,12 @@ class UserModel
         $stmt->bindParam(':country', $country);
         $stmt->bindParam(':id', $id);
 
-        // Si la mise à jour réussie, retourne true, sinon false
-        return $stmt->execute();
+        $stmt->debugDumpParams();
+
+        if (!$stmt->execute()) {
+            error_log(print_r($stmt->errorInfo(), true));
+            return false;
+        }
+        return true;
     }
 }
