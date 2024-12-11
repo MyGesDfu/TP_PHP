@@ -25,7 +25,9 @@ class UserModel
                 email VARCHAR(255) NOT NULL UNIQUE,
                 country VARCHAR(255) NOT NULL,
                 password VARCHAR(255) NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                reset_token VARCHAR(64) NULL,
+                token_expiry DATETIME NULL
             );
         ";
         $this->db->getPDO()->exec($query);
