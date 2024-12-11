@@ -10,6 +10,7 @@
 <?php endif; ?>
 
 <form action="/se-connecter" method="POST">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="email" name="email" placeholder="Votre email" required><br>
     <input type="password" name="password" placeholder="Votre mot de passe" required><br>
     <input type="submit" value="Se connecter">

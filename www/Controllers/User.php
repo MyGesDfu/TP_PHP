@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use App\Core\View;
+use App\Utils\Validator;
 
 class User
 {
@@ -14,55 +15,80 @@ class User
         $this->userModel = new UserModel();  // Utilisation du modèle UserModel
     }
 
+    private function startSession(): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+    }
+
+    private function generateCsrfToken(): string
+    {
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION['csrf_token'];
+    }
+
+    private function validateCsrfToken(): void
+    {
+        if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
+            die("Token CSRF invalide.");
+        }
+    }
+
     public function register(): void
     {
+        $this->startSession();
+        $this->generateCsrfToken();
+
         $view = new View("User/register.php", "back.php");
-        session_start();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $firstname = ucwords(strtolower(trim($_POST['firstname'])));
-            $lastname = strtoupper(trim($_POST['lastname']));
-            $email = strtolower(trim($_POST['email']));
-            $country = ucwords(trim($_POST['country']));
-            $password = trim($_POST['password']);
-            $passwordConfirm = trim($_POST['passwordConfirm']);
-            $errors = [];
 
-            if (empty($firstname))
-                $errors['firstname'] = "Le nom est requis.";
-            if (empty($lastname))
-                $errors['lastname'] = "Le prénom est requis.";
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL))
-                $errors['email'] = "L'email est invalide.";
-            if (empty($country))
-                $errors['country'] = "Le pays est requis.";
-            if (empty($password) || strlen($password) < 6)
-                $errors['password'] = "Le mot de passe doit contenir au moins 6 caractères.";
-            if ($password !== $passwordConfirm)
-                $errors['password_confirm'] = "Les mots de passe ne correspondent pas.";
-            if (empty($errors) && $this->userModel->getUserByEmail($email)) {
-                $errors['email'] = "Un utilisateur avec cet email existe déjà.";
-            }
+            $this->validateCsrfToken();
+
+            $validator = new Validator();
 
             if (empty($errors)) {
+                $firstname = ucwords(strtolower(trim($_POST['firstname'])));
+                $lastname = strtoupper(trim($_POST['lastname']));
+                $email = strtolower(trim($_POST['email']));
+                $country = ucwords(trim($_POST['country']));
+                $password = trim($_POST['password']);
+                $passwordConfirm = trim($_POST['passwordConfirm']);
                 $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-                $userId = $this->userModel->createUser([
-                    'firstname' => $firstname,
-                    'lastname' => $lastname,
-                    'email' => $email,
-                    'country' => $country,
-                    'password' => $hashedPassword
-                ]);
 
-                if ($userId > 0) {
-                    header("Location: /se-connecter");
-                    exit;
-                } else {
-                    $errors['general'] = "Erreur lors de l'inscription.";
+                $validator->validateRequired('firstname', $firstname, "Le prénom est requis.");
+                $validator->validateRequired('lastname', $lastname, "Le nom est requis.");
+                $validator->validateEmail('email', $email);
+                $validator->validateRequired('country', $country, "Le pays est requis.");
+                $validator->validateRequired('password', $password, "Le mot de passe est requis.");
+                $validator->validatePasswordMatch($password, $passwordConfirm);
+
+                if ($this->userModel->getUserByEmail($email)) {
+                    $validator->validateRequired('email', $email, "Un utilisateur avec cet email existe déjà.");
+                }
+
+                if ($validator->isValid()) {
+                    $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+                    $userId = $this->userModel->createUser([
+                        'firstname' => $firstname,
+                        'lastname' => $lastname,
+                        'email' => $email,
+                        'country' => $country,
+                        'password' => $hashedPassword
+                    ]);
+
+                    if ($userId > 0) {
+                        header("Location: /se-connecter");
+                        exit;
+                    } else {
+                        $errors['general'] = "Erreur lors de l'inscription.";
+                    }
                 }
             }
-
-            $_SESSION['errors'] = $errors;
+            $_SESSION['errors'] = $validator->getErrors();
             session_write_close();
             header("Location: /s-inscrire");
             exit;
@@ -71,20 +97,23 @@ class User
 
     public function login(): void
     {
-        session_start();
+        $this->startSession();
+        $this->generateCsrfToken();
+
         $view = new View("User/login.php", "front.php");
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email = trim($_POST['email']);
-            $password = trim($_POST['password']);
-            $errors = [];
+            $this->validateCsrfToken();
+            $email = trim($_POST['email'] ?? '');
+            $password = trim($_POST['password'] ?? '');
 
-            if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL))
-                $errors['email'] = "L'email est invalide.";
-            if (empty($password))
-                $errors['password'] = "Le mot de passe est requis.";
+            $validator = new Validator();
 
-            if (empty($errors)) {
+            $validator->validateRequired('email', $email, "L'email est requis.");
+            $validator->validateEmail('email', $email);
+            $validator->validateRequired('password', $password, "Le mot de passe est requis.");
+
+            if ($validator->isValid()) {
                 $user = $this->userModel->getUserByEmail($email);
 
                 if ($user && password_verify($password, $user['password'])) {
@@ -92,7 +121,7 @@ class User
                     header("Location: /");
                     exit;
                 } else {
-                    $errors['general'] = "Email ou mot de passe incorrect.";
+                    $validator->validateRequired('general', '', "Email ou mot de passe incorrect.");
                 }
             }
 
@@ -105,10 +134,11 @@ class User
 
     public function logout(): void
     {
-        session_start();
+        $this->startSession();
         session_unset();
         session_destroy();
         header("Location: /");
         exit;
     }
+
 }
