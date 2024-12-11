@@ -15,10 +15,19 @@ if (isset($_SESSION['success_message'])) {
 }
 ?>
 
-<form action="/se-connecter" method="POST">
-    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="email" name="email" placeholder="Votre email" required><br>
-    <input type="password" name="password" placeholder="Votre mot de passe" required><br>
-    <input type="submit" value="Se connecter">
+<form method="post" action="/se-connecter">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
+    <label>Email :</label>
+    <input type="email" name="email" required>
+    <label>Mot de passe :</label>
+    <input type="password" name="password" required>
+
+    <label>
+        <input type="checkbox" name="remember" value="1"> Se souvenir de moi
+    </label>
+
+    <button type="submit">Se connecter</button>
 </form>
+
 <p>Pas encore de compte ? <a href="/s-inscrire">Inscrivez-vous ici</a>.</p>
+<p><a href="/">Accueil</a>.</p>

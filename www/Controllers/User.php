@@ -123,6 +123,26 @@ class User
 
                 if ($user && password_verify($password, $user['password'])) {
                     $_SESSION['user'] = $user;
+
+                    // Si "Se souvenir de moi" est coché
+                    if (!empty($_POST['remember']) && $_POST['remember'] == 1) {
+                        $token = bin2hex(random_bytes(32));
+                        $expiry = date('Y-m-d H:i:s', time() + (30 * 24 * 60 * 60)); // 30 jours
+
+                        // Mettre à jour le token et sa date d'expiration en base
+                        if ($this->userModel->updateRememberToken($user['id'], $token, $expiry)) {
+                            // Créer le cookie "remember_token"
+                            setcookie('persistent_login_token', $token, [
+                                'expires' => time() + (30 * 24 * 60 * 60),
+                                'path' => '/',
+                                'secure' => false, // mettre true si HTTPS en production
+                                'httponly' => true
+                                // Vous pouvez ajouter 'samesite' => 'Strict' si vous le souhaitez, 
+                                // mais testez d'abord sans pour être sûr que cela ne bloque pas le cookie.
+                            ]);
+                        }
+                    }
+
                     header("Location: /");
                     exit;
                 } else {
@@ -137,14 +157,25 @@ class User
         }
     }
 
+
     public function logout(): void
     {
         $this->startSession();
+
+        if (isset($_SESSION['user']['id'])) {
+            $this->userModel->updateRememberToken($_SESSION['user']['id'], null, null);
+        }
+
+        if (isset($_COOKIE['remember_token'])) {
+            setcookie('remember_token', '', time() - 3600, '/');
+        }
+
         session_unset();
         session_destroy();
         header("Location: /");
         exit;
     }
+
 
     // Affiche le formulaire de modification de profil
     public function edit(int $id): void
@@ -225,7 +256,7 @@ class User
                 //mail($email, "Reset your password", "Click here to reset your password: $resetLink");
 
                 echo "<h3>Un lien permettant de changer votre mot de passe à été envoyer à l'email</h3>";
-                echo "Le lien: <a href='".$resetLink."'>Reset link</a>";
+                echo "Le lien: <a href='" . $resetLink . "'>Reset link</a>";
             } else {
                 echo "No user found with that email.";
             }

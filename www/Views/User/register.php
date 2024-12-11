@@ -18,3 +18,4 @@
     <input type="submit" value="S'inscrire"><br>
 </form>
 <p>Déjà un compte ? <a href="/se-connecter">Connectez-vous ici</a>.</p>
+<p><a href="/">Accueil</a>.</p>

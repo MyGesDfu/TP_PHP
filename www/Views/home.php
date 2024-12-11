@@ -1,7 +1,7 @@
 <h1>Bienvenue sur la page d'accueil</h1>
 
 <?php
-session_start();
+
 ?>
 
 <?php if (isset($_SESSION['user'])): ?>

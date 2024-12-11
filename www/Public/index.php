@@ -3,57 +3,56 @@
 spl_autoload_register("myAutoloader");
 function myAutoloader(string $class): void
 {
-    //    App\Core\User
     $class = str_ireplace('App', '..', $class);
-    //    ..\Core\User
     $class = str_ireplace('\\', '/', $class) . ".php";
-    //    Core/User.php
     if (file_exists($class)) {
-        //si le fichier existe : require "../Core/User.php";
         include $class;
     }
 }
 
-/*
- *  TP de routing
- *  - Récupérer l'url exemple : http://localhost/user/Add
- *  - Récupérer plus précisement l'URI : /user/Add
- *  - Nettoyer l'URI : exemple minuscules ....
- *  - Faire une relation entre /user/add et controller User et l'acion register
- *      --> Récupérer sous forme de tableau le contenu de routes.yml
- *      --> Récupérer le controller et l'action associé à l'URI
- *  - Appeler de manière dynamique le bon controller et la bonne action, exemple :
- *      --> $controller = new User();
- *      --> $controller->register();
- *
- * (Toujours garder en tête de faire un maximum de vérification avec des affichages d'erreur)
- */
+// Démarre la session
+session_start();
 
+// Gestion du "Se souvenir de moi"
+if (!isset($_SESSION['user']) && isset($_COOKIE['persistent_login_token'])) {
+    $userModel = new \App\Models\UserModel();
+    $userFromToken = $userModel->getUserByRememberToken($_COOKIE['persistent_login_token']);
+
+    if ($userFromToken) {
+        $_SESSION['user'] = $userFromToken;
+    } else {
+        // Token invalide ou expiré, on le supprime
+        setcookie('persistent_login_token', '', time() - 3600, '/');
+    }
+}
+
+// Nettoyage de l'URI
 $uri = strtolower($_SERVER["REQUEST_URI"]);
 $uri = (strlen($uri) > 1) ? rtrim($uri, "/") : $uri;
 $uri = strtok($uri, "?");
 
+// Vérification de l'existence de routes.yml
 if (!file_exists("../routes.yml")) {
     die("Le fichier ../routes.yml n'existe pas");
 }
+
 $listOfRoutes = yaml_parse_file("../routes.yml");
-
-
 $routeFound = false;
 
+// Parcours des routes pour trouver une correspondance
 foreach ($listOfRoutes as $routePattern => $routeConfig) {
     // Remplacer {id} par (\d+)? pour rendre l'ID optionnel
     $pattern = str_replace(['{id}'], ['(\d+)?'], $routePattern);
 
     if (preg_match('#^' . $pattern . '$#', $uri, $matches)) {
-        // Route correspondante trouvée
+        // Route trouvée
         $controller = $routeConfig["controller"];
         $action = $routeConfig["action"];
 
-        // Vérifie si l'ID est présent et l'assigne sinon le met à null
+        // Récupération de l'ID si présent
         $id = isset($matches[1]) ? $matches[1] : null;
 
-        // Charge le fichier du contrôleur
+        // Vérification du fichier contrôleur
         if (!file_exists("../Controllers/" . $controller . ".php")) {
             die("Le fichier controller n'existe pas : ../Controllers/" . $controller . ".php");
         }
@@ -63,14 +62,15 @@ foreach ($listOfRoutes as $routePattern => $routeConfig) {
         if (!class_exists($controller)) {
             die("La classe " . $controller . " n'existe pas");
         }
+
         $objectController = new $controller();
 
-        // Appelle la méthode dynamique avec l'ID si présent
+        // Vérification de la méthode
         if (!method_exists($objectController, $action)) {
             die("La méthode " . $action . " n'existe pas");
         }
 
-        // Appelle la méthode avec ou sans l'ID
+        // Appel de l'action avec ou sans ID
         if ($id !== null) {
             $objectController->$action($id);
         } else {
@@ -82,7 +82,7 @@ foreach ($listOfRoutes as $routePattern => $routeConfig) {
     }
 }
 
-// Si aucune route n'est trouvée
+// Si aucune route ne correspond
 if (!$routeFound) {
     die("Page not found : 404");
 }

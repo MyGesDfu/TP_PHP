@@ -18,20 +18,34 @@ class UserModel
     private function createTable(): void
     {
         $query = "
-            CREATE TABLE IF NOT EXISTS USERS (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                firstname VARCHAR(255) NOT NULL,
-                lastname VARCHAR(255) NOT NULL,
-                email VARCHAR(255) NOT NULL UNIQUE,
-                country VARCHAR(255) NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                reset_token VARCHAR(64) NULL,
-                token_expiry DATETIME NULL
-            );
-        ";
+        CREATE TABLE IF NOT EXISTS USERS (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            firstname VARCHAR(255) NOT NULL,
+            lastname VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL UNIQUE,
+            country VARCHAR(255) NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            reset_token VARCHAR(64) NULL,
+            token_expiry DATETIME NULL
+        );";
+
         $this->db->getPDO()->exec($query);
+
+        // Vérifier si persistent_login_token existe déjà
+        $checkColumn = $this->db->getPDO()->query("SHOW COLUMNS FROM USERS LIKE 'persistent_login_token'");
+        if ($checkColumn->rowCount() === 0) {
+            $this->db->getPDO()->exec("ALTER TABLE USERS ADD COLUMN persistent_login_token VARCHAR(255) DEFAULT NULL;");
+        }
+
+        // Vérifier si persistent_login_expiry existe déjà
+        $checkColumn = $this->db->getPDO()->query("SHOW COLUMNS FROM USERS LIKE 'persistent_login_expiry'");
+        if ($checkColumn->rowCount() === 0) {
+            $this->db->getPDO()->exec("ALTER TABLE USERS ADD COLUMN persistent_login_expiry DATETIME DEFAULT NULL;");
+        }
     }
+
+
 
     // Méthode pour créer un nouvel utilisateur
     public function createUser(array $data): int
@@ -147,5 +161,26 @@ class UserModel
             return false;
         }
         return true;
+    }
+
+
+    ///
+
+    public function updateRememberToken(int $userId, ?string $token, ?string $expiry): bool
+    {
+        $query = "UPDATE USERS SET persistent_login_token = :token, persistent_login_expiry = :expiry WHERE id = :id";
+        $stmt = $this->db->getPDO()->prepare($query);
+        $stmt->bindParam(':token', $token);
+        $stmt->bindParam(':expiry', $expiry);
+        $stmt->bindParam(':id', $userId);
+        return $stmt->execute();
+    }
+
+    public function getUserByRememberToken(string $token): array|false
+    {
+        $query = "SELECT * FROM USERS WHERE persistent_login_token = :token AND persistent_login_expiry > NOW()";
+        $stmt = $this->db->getPDO()->prepare($query);
+        $stmt->execute(['token' => $token]);
+        return $stmt->fetch();
     }
 }
