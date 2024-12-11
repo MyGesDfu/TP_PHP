@@ -13,4 +13,5 @@ session_start();
 <?php else: ?>
     <a href="/se-connecter">Connecte-toi !</a>
     <a href="/s-inscrire">Inscris-toi !</a>
+    <a href="/oublie-motdepasse">Mot de passe oublié ?</a>
 <?php endif; ?>

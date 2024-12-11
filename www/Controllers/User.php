@@ -210,4 +210,51 @@ class User
             }
         }
     }
+
+    public function forgotPassword()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = $_POST['email'];
+            $user = $this->userModel->findByEmail($email);
+
+            if ($user) {
+                $token = bin2hex(random_bytes(32));
+                $this->userModel->storeResetToken($user["id"], $token);
+
+                $resetLink = "http://localhost:90/reset-motdepasse?token=$token";
+                //mail($email, "Reset your password", "Click here to reset your password: $resetLink");
+
+                echo "<h3>Un lien permettant de changer votre mot de passe à été envoyer à l'email</h3>";
+                echo "Le lien: <a href='".$resetLink."'>Reset link</a>";
+            } else {
+                echo "No user found with that email.";
+            }
+        } else {
+            $view = new View("User/forgot_password.php", "front.php");
+        }
+    }
+
+    public function resetPassword()
+    {
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $token = $_POST['token'];
+            $newPassword = $_POST['password'];
+
+            $user = $this->userModel->findByResetToken($token);
+            if ($user && $this->userModel->isTokenValid($token)) {
+                $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+                $this->userModel->updatePassword($user['id'], $hashedPassword);
+                echo "<h3>Le mot de passe a été changer avec succès</h3>";
+                echo "<a href='/'>Retourner à l'acceuil</a>";
+            } else {
+                echo "Token invalide";
+                echo $user["id"];
+                echo $this->userModel->isTokenValid($token);
+                echo $token;
+            }
+        } else {
+            new View("User/reset_password.php", "front.php");
+        }
+    }
 }

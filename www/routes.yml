@@ -21,3 +21,11 @@
 /utilisateurs/{id}/update:
   controller: "User"
   action: "update"
+
+/oublie-motdepasse:
+  controller: "User"
+  action: "forgotPassword"
+
+/reset-motdepasse:
+  controller: "User"
+  action: "resetPassword"
