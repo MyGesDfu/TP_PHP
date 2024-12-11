@@ -80,4 +80,78 @@ class UserModel
         }
         return true;
     }
+
+    public function findByEmail($email)
+    {
+        $query = "SELECT id FROM USERS WHERE email = :email";
+        $stmt = $this->db->getPDO()->prepare($query);
+        $stmt->bindParam(':email', $email);
+        if (!$stmt->execute()) {
+            error_log(print_r($stmt->errorInfo(), true));
+            return false;
+        }
+        return true;
+    }
+
+    public function storeResetToken($userId, $token)
+    {
+        $query = "UPDATE USERS SET reset_token = :token, token_expiry = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE id = :id";
+        $stmt = $this->db->getPDO()->prepare($query);
+        $stmt->bindParam(':token', $token);
+        $stmt->bindParam(':id', $userId);
+        if (!$stmt->execute()) {
+            error_log(print_r($stmt->errorInfo(), true));
+            return false;
+        }
+        return true;
+    }
+
+    public function findByResetToken($token): bool
+    {
+        $query = "SELECT * FROM USERS WHERE reset_token = :token";
+        $stmt = $this->db->getPDO()->prepare($query);
+        $stmt->bindParam(':token', $token);
+        if (!$stmt->execute()) {
+            error_log(print_r($stmt->errorInfo(), true));
+            return false;
+        }
+        return true;
+    }
+
+    public function isTokenValid($token): bool
+    {
+        $query = "SELECT * FROM USERS WHERE reset_token = :token AND token_expiry > NOW()";
+        $stmt = $this->db->getPDO()->prepare($query);
+        $stmt->bindParam(':token', $token);
+        if (!$stmt->execute()) {
+            error_log(print_r($stmt->errorInfo(), true));
+            return false;
+        }
+        return true;
+    }
+
+    public function updatePassword($userId, $hashedPassword)
+    {
+        $query = "UPDATE USERS SET password = :password WHERE id = :id";
+        $stmt = $this->db->getPDO()->prepare($query);
+        $stmt->bindParam(':password', $hashedPassword);
+        $stmt->bindParam(':id', $userId);
+        if (!$stmt->execute()) {
+            error_log(print_r($stmt->errorInfo(), true));
+            return false;
+        }
+        return true;
+    }
+
+    public function clearResetToken($userId): bool
+    {
+        $sql = "UPDATE USERS SET reset_token = NULL, token_expiry = NULL WHERE id = :id";
+        $stmt = $this->db->getPDO()->prepare($query);
+        $stmt->bindParam(':id', $userId);
+        if (!$stmt->execute()) {
+            error_log(print_r($stmt->errorInfo(), true));
+            return false;
+        }
+        return true;
+    }
 }
