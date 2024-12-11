@@ -252,7 +252,7 @@ class User
                 $token = bin2hex(random_bytes(32));
                 $this->userModel->storeResetToken($user["id"], $token);
 
-                $resetLink = "http://localhost:90/reset-motdepasse?token=$token";
+                $resetLink = "http://localhost:80/reset-motdepasse?token=$token";
                 //mail($email, "Reset your password", "Click here to reset your password: $resetLink");
 
                 echo "<h3>Un lien permettant de changer votre mot de passe à été envoyer à l'email</h3>";
