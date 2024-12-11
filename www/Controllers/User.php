@@ -67,7 +67,7 @@ class User
                 $validator->validatePasswordMatch($password, $passwordConfirm);
 
                 if ($this->userModel->getUserByEmail($email)) {
-                    $validator->validateRequired('email', $email, "Un utilisateur avec cet email existe déjà.");
+                    $validator->addError('email', "Un utilisateur avec cet email existe déjà.");
                 }
 
                 if ($validator->isValid()) {
@@ -88,12 +88,14 @@ class User
                     }
                 }
             }
+
             $_SESSION['errors'] = $validator->getErrors();
             session_write_close();
             header("Location: /s-inscrire");
             exit;
         }
     }
+
 
     public function login(): void
     {
@@ -125,7 +127,7 @@ class User
                 }
             }
 
-            $_SESSION['errors'] = $errors;
+            $_SESSION['errors'] = $validator->getErrors();
             session_write_close();
             header("Location: /se-connecter");
             exit;

@@ -20,6 +20,11 @@ class Validator
         }
     }
 
+    public function addError(string $field, string $message): void
+    {
+        $this->errors[$field] = $message;
+    }
+
     public function validatePasswordMatch(string $password, string $passwordConfirm): void
     {
         if ($password !== $passwordConfirm) {
